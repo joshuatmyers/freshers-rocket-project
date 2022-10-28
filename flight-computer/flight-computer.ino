@@ -1,3 +1,7 @@
+#include <mpu9250.h>
+#include <SPI.h>
+#include <SD.h>
+
 void setup() {
   // put your setup code here, to run once:
 
