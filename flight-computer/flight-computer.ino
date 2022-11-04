@@ -5,7 +5,8 @@
 #include <Adafruit_BMP085.h>
 Adafruit_MPU6050 mpu;
 Adafruit_BMP085 bmp;
-#define seaLevelPressure_hPa //input here
+#define seaLevelPressure_hPa 1013.25//input here
+int buzzer = 11;
 
 void setup() {
   // put your setup code here, to run once:
@@ -24,12 +25,15 @@ void setup() {
   }
   mpu.setAccelerometerRange(MPU6050_RANGE_16_G);
   mpu.setFilterBandwidth(MPU6050_BAND_21_HZ);
+
+  
 }
 
 void loop() {
   // put your main code here, to run repeatedly:
   // bpm reading methods
-  /* 
+  
+   
   Serial.print("Temperature = ");
   Serial.print(bmp.readTemperature());
   Serial.println(" *C");
@@ -52,6 +56,6 @@ void loop() {
   
   Serial.println();
   delay(500);
-  */
+  
   
 }
