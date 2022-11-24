@@ -3,13 +3,22 @@
 #include <SD.h>
 #include <Wire.h>
 #include <Adafruit_BMP085.h>
-Adafruit_MPU6050 mpu;
-Adafruit_BMP085 bmp;
-#define seaLevelPressure_hPa 1013.25//input here
-int buzzer = 11;
 #include <Adafruit_Sensor.h>
 
+Adafruit_MPU6050 mpu;
+Adafruit_BMP085 bmp;
+
+#define seaLevelPressure_hPa 1013.25//input here
+
+int buzzer = 11;
+int maxHeight = 0;
+
+bool descent = False;
+
 File myFile;
+// change to match SD shield or module
+const int chipSelect = 10;
+
 
 void setup() {
   // put your setup code here, to run once:
@@ -22,12 +31,12 @@ void setup() {
     Serial.println("Failed to find MPU6050 chip");
   }
   Serial.println("MPU6050 Found!");
-  /*if (!bmp.begin()) {
+  if (!bmp.begin()) {
     Serial.println("Could not find a valid BMP085 sensor, check wiring!");
     while (1) {
       delay(10);
     }
-  }*/
+  }
   Serial.println("BMP180 Found!");
   // Open serial communications and wait for port to open:
  
@@ -72,54 +81,49 @@ void loop() {
   
   sensors_event_t a, g, temp;
 	mpu.getEvent(&a, &g, &temp);
-  
-  myFile.print("Acceleration X: ");
-	myFile.print(a.acceleration.x);
-	myFile.print(", Y: ");
-	myFile.print(a.acceleration.y);
-	myFile.print(", Z: ");
-	myFile.print(a.acceleration.z);
-	myFile.println(" m/s^2");
+  while(descent=False) {
+      
+    //myFile.print("Acceleration X: ");  in m/s^2
+    myFile.print(a.acceleration.x);
+    myFile.print(",");
+    myFile.print(a.acceleration.y);
+    myFile.print(",");
+    myFile.print(a.acceleration.z);
+    myFile.print(",");
 
-	myFile.print("Rotation X: ");
-	myFile.print(g.gyro.x);
-	myFile.print(", Y: ");
-	myFile.print(g.gyro.y);
-	myFile.print(", Z: ");
-	myFile.print(g.gyro.z);
-	myFile.println(" rad/s");
+    //myFile.print("Rotation X: "); in rad/s
+    myFile.print(g.gyro.x);
+    myFile.print(",");
+    myFile.print(g.gyro.y);
+    myFile.print(",");
+    myFile.print(g.gyro.z);
+    myFile.print(",");
 
-	myFile.print("Temperature: ");
-	myFile.print(temp.temperature);
-	myFile.println(" degC");
+    //myFile.print("Temperature: "); in degrees celcius
+    myFile.print(temp.temperature);
+    myFile.print(",");
+    myFile.print(bmp.readAltitude()); // altitude
+    myFile.print(",");
+    myFile.print(bmp.readAltitude(seaLevelPressure_hPa * 100)); // real altitude
+    myFile.print(",");
+    myFile.print(bmp.readPressure()); // pressure in Pa
+    myFile.print(",");
+    myFile.print(bmp.readSealevelPressure()); // pressure at sea level
 
-	myFile.println("");
-	delay(100);
+    myFile.println();
+    delay(100);
 
-  /* 
-  Serial.print("Temperature = ");
-  Serial.print(bmp.readTemperature());
-  Serial.println(" *C");
-  
-  Serial.print("Pressure = ");
-  Serial.print(bmp.readPressure());
-  Serial.println(" Pa");
+    // Check whether rocket has started descending
+    if(bmp.readAltitude() > maxHeight) {
+      maxHeight = bmp.readAltitude();
+    }
+    if(bmp.readAltitude() < maxHeight - 10) {
+      myFile.close();
+      descent=True;
+      // turn on buzzer and/or change boolean to stop writing and close file
+    }
+    delay(500);
+  }
+  // turn on buzzer here
 
-  Serial.print("Altitude = ");
-  Serial.print(bmp.readAltitude());
-  Serial.println(" meters");
-
-  Serial.print("Pressure at sealevel (calculated) = ");
-  Serial.print(bmp.readSealevelPressure());
-  Serial.println(" Pa");
-
-  Serial.print("Real altitude = ");
-  Serial.print(bmp.readAltitude(seaLevelPressure_hPa * 100));
-  Serial.println(" meters");
-  
-  Serial.println();
-  delay(500);
-  */
-  
-  
 }
