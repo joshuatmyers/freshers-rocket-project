@@ -8,12 +8,12 @@
 Adafruit_MPU6050 mpu;
 Adafruit_BMP085 bmp;
 
-#define seaLevelPressure_hPa 1013.25//input here
+#define seaLevelPressure_hPa 102.85//input here
 
 int buzzer = 11;
 int maxHeight = 0;
 
-bool descent = False;
+//bool descent = False;
 
 File myFile;
 // change to match SD shield or module
@@ -81,7 +81,7 @@ void loop() {
   
   sensors_event_t a, g, temp;
 	mpu.getEvent(&a, &g, &temp);
-  while(descent=False) {
+  //while(descent=False) {
       
     //myFile.print("Acceleration X: ");  in m/s^2
     myFile.print(a.acceleration.x);
@@ -112,7 +112,7 @@ void loop() {
 
     myFile.println();
     delay(100);
-
+    /*
     // Check whether rocket has started descending
     if(bmp.readAltitude() > maxHeight) {
       maxHeight = bmp.readAltitude();
@@ -123,7 +123,8 @@ void loop() {
       // turn on buzzer and/or change boolean to stop writing and close file
     }
     delay(500);
-  }
+    */
+  //}
   // turn on buzzer here
 
 }
